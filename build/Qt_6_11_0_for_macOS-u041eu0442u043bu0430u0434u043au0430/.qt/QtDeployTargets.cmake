@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_belokebator_FILE /Users/nikolay/Documents/алгоротмизация/курсова/belokebator/build/Qt_6_11_0_for_macOS-u041eu0442u043bu0430u0434u043au0430/belokebator.app/Contents/MacOS/belokebator)
+set(__QT_DEPLOY_TARGET_belokebator_TYPE EXECUTABLE)

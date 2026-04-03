@@ -1,0 +1,3 @@
+D:\qt\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\belokebator.dir/objects.a
+D:\qt\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\belokebator.dir/objects.a @CMakeFiles\belokebator.dir\objects1.rsp
+D:\qt\Tools\mingw1310_64\bin\g++.exe -g -mwindows -Wl,--whole-archive CMakeFiles\belokebator.dir/objects.a -Wl,--no-whole-archive -o belokebator.exe -Wl,--out-implib,libbelokebator.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\belokebator.dir\linkLibs.rsp

@@ -1,0 +1,55 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/background/background.svg</file>
+        <file>assets/background/info_container.svg</file>
+        <file>assets/background/toolbar.svg</file>
+        <file>assets/buttons/belok.svg</file>
+        <file>assets/buttons/belok_hovered.svg</file>
+        <file>assets/buttons/belok_pressed.svg</file>
+        <file>assets/buttons/ckal.svg</file>
+        <file>assets/buttons/ckal_hovered.svg</file>
+        <file>assets/buttons/ckal_pressed.svg</file>
+        <file>assets/buttons/profile.svg</file>
+        <file>assets/buttons/profile_hovered.svg</file>
+        <file>assets/buttons/profile_pressed.svg</file>
+        <file>assets/buttons/settings.svg</file>
+        <file>assets/buttons/settings_hovered.svg</file>
+        <file>assets/buttons/settings_pressed.svg</file>
+        <file>assets/profilepage/name_field.svg</file>
+        <file>assets/profilepage/name_field_hover.svg</file>
+        <file>assets/profilepage/vaga_field_hover.svg</file>
+        <file>assets/profilepage/vaga_hover.svg</file>
+        <file>assets/profilepage/zrist_field.svg</file>
+        <file>assets/profilepage/zrist_field_hover.svg</file>
+        <file>assets/buttons/cancel.svg</file>
+        <file>assets/buttons/save.svg</file>
+        <file>assets/ckal page/upload_field.svg</file>
+        <file>assets/ckal page/upload_field_hover.svg</file>
+        <file>assets/buttons/add_button.svg</file>
+        <file>assets/ckal page/vagaida_field.svg</file>
+        <file>assets/ckal page/vagaida_field_hover.svg</file>
+        <file>assets/profilepage/tip_programmy_button.svg</file>
+        <file>assets/profilepage/vibortipy/nabir_btn.svg</file>
+        <file>assets/profilepage/vibortipy/nabir_btn_hover.svg</file>
+        <file>assets/profilepage/vibortipy/nabir_btn_pressed.svg</file>
+        <file>assets/profilepage/vibortipy/pidtr_btn.svg</file>
+        <file>assets/profilepage/vibortipy/pidtr_btn_hover.svg</file>
+        <file>assets/profilepage/vibortipy/pidtr_btn_pressed.svg</file>
+        <file>assets/profilepage/vibortipy/shud_btn.svg</file>
+        <file>assets/profilepage/vibortipy/shud_btn_pressed.svg</file>
+        <file>assets/profilepage/vibortipy/shud_btn_hover.svg</file>
+        <file>assets/ckal page/imagebox.svg</file>
+        <file>assets/ckal page/infobox.svg</file>
+        <file>assets/ckal page/info_btn.svg</file>
+        <file>assets/ckal page/info_btn_hover.svg</file>
+        <file>assets/ckal page/info_btn_pressed.svg</file>
+        <file>assets/ckal page/infoboxalert.svg</file>
+        <file>assets/settingspage/combolisttriangle.svg</file>
+        <file>assets/background/loading_anim.gif</file>
+        <file>assets/background/notify_bar_bg.svg</file>
+        <file>assets/icons/belok.png</file>
+        <file>assets/icons/ckal.png</file>
+        <file>assets/icons/profile.png</file>
+        <file>assets/icons/settings.png</file>
+    </qresource>
+</RCC>
