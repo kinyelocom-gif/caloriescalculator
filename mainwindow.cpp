@@ -12,12 +12,18 @@
 #include <QSettings>
 #include <QMovie>
 #include <QGraphicsDropShadowEffect>
+#include <QFile>
+#include <QTextStream>
+#include <QDir>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    loadFullSession();
 
     this->setWindowTitle("Калькулятор калорій - Профіль");
     this->setWindowIcon(QIcon(":/assets/icons/profile.png"));
@@ -39,18 +45,34 @@ MainWindow::MainWindow(QWidget *parent)
     movie->setScaledSize(QSize(30, 30));
     ui->loading_gif_label->setMovie(movie);
 
+
+    QFile keyFile("apikey.txt");
+    if (keyFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&keyFile);
+        paidApiKey = in.readLine().trimmed();
+        qDebug() << "key uploaded" << paidApiKey.left(5) << "...";
+        keyFile.close();
+    } else {
+        qDebug() << "error, try to add apikey.txt to path:" << QDir::currentPath();
+    }
+
     QSettings settings("MyCompany", "CalorieApp");
     int lastApi = settings.value("selected_api_index", 0).toInt();
     int lastModel = settings.value("selected_model_index", 0).toInt();
+    ui->apiBox->blockSignals(true);
+    ui->modelBox->blockSignals(true);
+
     ui->apiBox->setCurrentIndex(lastApi);
     ui->modelBox->setCurrentIndex(lastModel);
+
+    ui->apiBox->blockSignals(false);
+    ui->modelBox->blockSignals(false);
+
     on_apiBox_currentIndexChanged(lastApi);
     on_modelBox_currentIndexChanged(lastModel);
 
     networkManager = new QNetworkAccessManager(this);
 
-    apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent");
-    apiKey = "AIzaSyD1dmaD8WuEaWk7XPurrA04LsBpsGcvzfE";
 
     ui->page->setAttribute(Qt::WA_StyledBackground, true);
     ui->mainStackedWidget->setCurrentIndex(0);
@@ -69,6 +91,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_add_button_clicked()
 {
+    ui->add_button->setEnabled(false);
+
     //початок gif анімації
     ui->notification_bar->show();
     ui->loading_gif_label->movie()->start();
@@ -101,12 +125,18 @@ void MainWindow::on_add_button_clicked()
     QNetworkRequest request(apiUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
+    if(apiKey.isEmpty()) {
+        qDebug() << "error key is empty";
+        return;
+    }
+
     request.setRawHeader("X-goog-api-key", apiKey.toUtf8());
 
     // Отправляем
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(root).toJson());
 
     connect(reply, &QNetworkReply::finished, this, [=]() {
+        ui->add_button->setEnabled(true);
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument resDoc = QJsonDocument::fromJson(reply->readAll());
             QString aiResponse = resDoc.object().value("candidates").toArray().at(0)
@@ -301,9 +331,8 @@ void MainWindow::on_save_clicked()
         }
         reply->deleteLater();
     });
-
-
 }
+
 
 void MainWindow::on_cancel_clicked()
 {
@@ -382,13 +411,13 @@ void MainWindow::on_apiBox_currentIndexChanged(int index)
     } else if (index == 3) {
         apiKey = "AIzaSyB3qUuK3wje4l1cK5GIo5DXZZ21bJFgQrY";
     } else if (index == 4) {
-        apiKey = "AIzaSyAP0ENyy1jaPwnCPAZ_SYds8NEc-SUhG9I";
+        apiKey = paidApiKey;
     }
 
     QSettings settings("MyCompany", "CalorieApp");
     settings.setValue("selected_api_index", index);
 
-    qDebug() << "api changed: " << index;
+    qDebug() << "api: " << index + 1;
 
 }
 
@@ -397,25 +426,25 @@ void MainWindow::on_modelBox_currentIndexChanged(int index)
 {
     if (index == 0) {
         apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent");
-        qDebug() << "model changed: gemini-3-flash-preview";
+        qDebug() << "model: gemini-3-flash-preview";
     } else if (index == 1) {
         apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent");
-        qDebug() << "model changed: gemini-3.1-flash-lite-preview";
+        qDebug() << "model: gemini-3.1-flash-lite-preview";
     } else if(index == 2) {
         apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent");
-        qDebug() << "model changed: gemini-2.5-flashw";
+        qDebug() << "model: gemini-2.5-flash";
     } else if(index == 3) {
         apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent");
-        qDebug() << "model changed: gemini-2.5-flash-lite";
+        qDebug() << "model: gemini-2.5-flash-lite";
     } else if(index == 4) {
         apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent");
-        qDebug() << "model changed: gemini-2.0-flash";
+        qDebug() << "model: gemini-2.0-flash";
     } else if(index == 5) {
         apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent");
-        qDebug() << "model changed: gemini-2.0-flash-lite";
+        qDebug() << "model: gemini-2.0-flash-lite";
     } else if(index == 6) {
         apiUrl = QUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-live:generateContent");
-        qDebug() << "model changed: gemini-3-flash-live";
+        qDebug() << "model: gemini-3-flash-live";
     }
 
     QSettings settings("MyCompany", "CalorieApp");
@@ -528,4 +557,128 @@ void MainWindow::on_add_button_2_clicked()
         }
         reply->deleteLater();
     });
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveFullSession(); // Сначала сохраняем данные
+    qDebug() << "Session saved. See you later!";
+    event->accept();   // Потом разрешаем закрыть окно
+}
+
+void MainWindow::saveFullSession()
+{
+    QJsonObject root;
+
+    // 1. Сохраняем данные профиля (из твоих переменных)
+    QJsonObject profile;
+    profile["name"] = userName;
+    profile["age"] = userAge;
+    profile["height"] = userHeight;
+    profile["weight"] = userWeight;
+    profile["meta"] = meta;
+    root["profile"] = profile;
+
+    // 2. Сохраняем текущий прогресс (твои переменные cT...)
+    QJsonObject progress;
+    progress["calories"] = cTcalories;
+    progress["proteins"] = cTproteins;
+    progress["fats"] = cTfats;
+    progress["carbs"] = cTcarbs;
+    root["progress"] = progress;
+
+    // 3. Сохраняем цели (scores), чтобы бары правильно считались при загрузке
+    QJsonObject targets;
+    targets["calScore"] = userCkalScore;
+    targets["protScore"] = userProteinScore;
+    targets["fatsScore"] = userFatsScore;
+    targets["carbsScore"] = userCarbsScore;
+    root["targets"] = targets;
+
+    // 4. Сохраняем настройки интерфейса
+    QJsonObject uiSettings;
+    uiSettings["apiIndex"] = ui->apiBox->currentIndex();
+    uiSettings["modelIndex"] = ui->modelBox->currentIndex();
+    uiSettings["lastInput"] = ui->input_field->text();
+    root["ui"] = uiSettings;
+
+    // Записываем всё это в файл
+    QFile file("session.json");
+    if (file.open(QIODevice::WriteOnly)) {
+        QJsonDocument doc(root);
+        file.write(doc.toJson()); // Превращаем объект в текстовый JSON
+        file.close();
+    } else {
+        qDebug() << "Failed to open file to save session!";
+    }
+}
+
+void MainWindow::loadFullSession()
+{
+    QFile file("session.json");
+    if (!file.exists()) {
+        qDebug() << "Session file not found, loading a clean program.";
+        return;
+    }
+
+    if (file.open(QIODevice::ReadOnly)) {
+        QByteArray data = file.readAll();
+        file.close();
+
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        QJsonObject root = doc.object();
+
+        // 1. Восстанавливаем профиль
+        QJsonObject profile = root["profile"].toObject();
+        userName = profile["name"].toString();
+        userAge = profile["age"].toInt();
+        userHeight = profile["height"].toInt();
+        userWeight = profile["weight"].toInt();
+        meta = profile["meta"].toString();
+
+        // Заполняем поля в интерфейсе
+        ui->name_field->setText(userName);
+        ui->age_field->setText(userAge > 0 ? QString::number(userAge) : "");
+        ui->zrist_field->setText(userHeight > 0 ? QString::number(userHeight) : "");
+        ui->vaga_field->setText(userWeight > 0 ? QString::number(userWeight) : "");
+
+        // 2. Восстанавливаем цели (Score)
+        QJsonObject targets = root["targets"].toObject();
+        userCkalScore = targets["calScore"].toInt();
+        userProteinScore = targets["protScore"].toInt();
+        userFatsScore = targets["fatsScore"].toInt();
+        userCarbsScore = targets["carbsScore"].toInt();
+
+        // 3. Восстанавливаем текущий прогресс
+        QJsonObject progress = root["progress"].toObject();
+        cTcalories = progress["calories"].toDouble();
+        cTproteins = progress["proteins"].toDouble();
+        cTfats = progress["fats"].toDouble();
+        cTcarbs = progress["carbs"].toDouble();
+
+        // 4. Обновляем визуальные бары (Progress Bars)
+        if (userCkalScore > 0) ui->ckal_bar->setValue(qBound(0, qRound((cTcalories / userCkalScore) * 100.0), 100));
+        if (userProteinScore > 0) ui->protein_bar->setValue(qBound(0, qRound((cTproteins / userProteinScore) * 100.0), 100));
+        if (userFatsScore > 0) ui->fats_bar->setValue(qBound(0, qRound((cTfats / userFatsScore) * 100.0), 100));
+        if (userCarbsScore > 0) ui->carbs_bar->setValue(qBound(0, qRound((cTcarbs / userCarbsScore) * 100.0), 100));
+
+        // 5. Настройки UI (API и Модель)
+        QJsonObject uiSettings = root["ui"].toObject();
+
+        // Блокируем сигналы, чтобы не дергать сервер при загрузке
+        ui->apiBox->blockSignals(true);
+        ui->modelBox->blockSignals(true);
+
+        ui->apiBox->setCurrentIndex(uiSettings["apiIndex"].toInt());
+        ui->modelBox->setCurrentIndex(uiSettings["modelIndex"].toInt());
+
+        ui->apiBox->blockSignals(false);
+        ui->modelBox->blockSignals(false);
+
+        // Принудительно обновляем apiKey и apiUrl под загруженные индексы
+        on_apiBox_currentIndexChanged(ui->apiBox->currentIndex());
+        on_modelBox_currentIndexChanged(ui->modelBox->currentIndex());
+
+        qDebug() << "Session loaded successfully!";
+    }
 }

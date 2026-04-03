@@ -8,3 +8,5 @@ build-*/
 *.obj
 *.exe
 .qtc_clangd/
+
+apikey.txt

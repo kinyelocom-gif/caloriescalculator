@@ -47,6 +47,11 @@ private slots:
 
     void on_add_button_2_clicked();
 
+
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private:
     Ui::MainWindow *ui;
     QString userName;
@@ -56,6 +61,7 @@ private:
     QNetworkAccessManager *networkManager;
     QUrl apiUrl;
     QString apiKey;
+    QString paidApiKey;
 
     QString meta;
     bool shud;
@@ -67,6 +73,9 @@ private:
     double ckalPercentage = 0, proteinPercentage = 0, fatsPercentage = 0, carbsPercentage = 0;
     double totalCkalPercentage = 0, totalProteinPercentage = 0, totalFatsPercentage = 0, totalCarbsPercentage = 0;
     double cTcalories = 0, cTproteins = 0, cTfats = 0, cTcarbs = 0;
+
+    void saveFullSession();
+    void loadFullSession();
 };
 
 
