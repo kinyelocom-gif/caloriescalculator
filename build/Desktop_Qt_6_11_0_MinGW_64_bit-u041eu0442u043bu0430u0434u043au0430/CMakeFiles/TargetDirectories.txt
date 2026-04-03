@@ -1,9 +1,0 @@
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/belokebator.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/edit_cache.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/rebuild_cache.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/list_install_components.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/install.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/install/local.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/install/strip.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/belokebator_autogen_timestamp_deps.dir
-D:/qt proj/belokebator/build/Desktop_Qt_6_11_0_MinGW_64_bit-u041eu0442u043bu0430u0434u043au0430/CMakeFiles/belokebator_autogen.dir
