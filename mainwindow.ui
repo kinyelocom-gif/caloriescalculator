@@ -3052,11 +3052,40 @@ QComboBox QAbstractItemView {
             </item>
             <item>
              <widget class="QPushButton" name="saveDel">
+              <property name="minimumSize">
+               <size>
+                <width>249</width>
+                <height>44</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>249</width>
+                <height>40</height>
+               </size>
+              </property>
               <property name="styleSheet">
-               <string notr="true"/>
+               <string notr="true">QPushButton {
+    border-image: url(:/assets/buttons/delete_btn.svg) 0 0 0 0;
+	color: #4A4A4A;
+	margin-top: 2px; 
+    margin-bottom: 2px;
+    font-size: 14px;
+    min-width: 249px;
+    min-height: 40px;
+}
+QPushButton:hover {
+	margin-top: 0px;    
+    margin-bottom: 4px;
+}
+
+QPushButton:pressed {
+	margin-top: 4px;   
+    margin-bottom: 0px;
+}</string>
               </property>
               <property name="text">
-               <string>Видалити кеш</string>
+               <string/>
               </property>
              </widget>
             </item>
