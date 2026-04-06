@@ -436,7 +436,7 @@ background-color: white; /* укажи свой цвет фона */
 }</string>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="autoFillBackground">
@@ -3048,6 +3048,16 @@ QComboBox QAbstractItemView {
                 <string>gemini-3-flash-live</string>
                </property>
               </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="saveDel">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Видалити кеш</string>
+              </property>
              </widget>
             </item>
            </layout>

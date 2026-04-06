@@ -16,6 +16,8 @@
 #include <QTextStream>
 #include <QDir>
 #include <QCloseEvent>
+#include <QProcess>
+#include <QCoreApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -46,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->loading_gif_label->setMovie(movie);
 
 
-    QFile keyFile("apikey.txt");
+    QFile keyFile(":/assets/api/apikey.txt");
     if (keyFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&keyFile);
         paidApiKey = in.readLine().trimmed();
@@ -75,9 +77,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     ui->page->setAttribute(Qt::WA_StyledBackground, true);
-    ui->mainStackedWidget->setCurrentIndex(0);
-    ui->ckalStackedWidget->setCurrentIndex(0);
-    ui->belokStackedWidget->setCurrentIndex(0);
+    // ui->mainStackedWidget->setCurrentIndex(0);
+    // ui->ckalStackedWidget->setCurrentIndex(0);
+    // ui->belokStackedWidget->setCurrentIndex(0);
 }
 
 
@@ -184,11 +186,11 @@ void MainWindow::on_add_button_clicked()
             totalCarbsPercentage = qBound(0, qRound((cTcarbs/userCarbsScore) * 100.0), 100);
             ui->carbs_bar->setValue(totalCarbsPercentage);
 
-            QString stravaLbl = QString("Страва: %1").arg(strava);
-            QString caloriesLbl = QString("Калорії: %1").arg(calories);
-            QString proteinLbl = QString("Білок: %1 г").arg(proteins);
-            QString fatsLbl = QString("Жири: %1 г").arg(fats);
-            QString carbsLbl = QString("Вуглеводи: %1 г").arg(carbs);
+            stravaLbl = QString("Страва: %1").arg(strava);
+            caloriesLbl = QString("Калорії: %1").arg(calories);
+            proteinLbl = QString("Білок: %1 г").arg(proteins);
+            fatsLbl = QString("Жири: %1 г").arg(fats);
+            carbsLbl = QString("Вуглеводи: %1 г").arg(carbs);
 
             ui->ckal_lbl->setText(caloriesLbl);
             ui->ckal_lbl->adjustSize();
@@ -506,7 +508,7 @@ void MainWindow::on_add_button_2_clicked()
             double calories = 0, proteins = 0, fats = 0, carbs = 0, fenil = 0;
             QString strava;
 
-            QRegularExpression re("Блюдо:\\s*([^,]+).*?ckal:\\s*([\\d.]+).*?proteins:\\s*([\\d.]+).*?fenil:\\s*([\\d.]+).*?fats:\\s*([\\d.]+).*?carbs:\\s*([\\d.]+)");
+            QRegularExpression re("Страва:\\s*([^,]+).*?ckal:\\s*([\\d.]+).*?proteins:\\s*([\\d.]+).*?fenil:\\s*([\\d.]+).*?fats:\\s*([\\d.]+).*?carbs:\\s*([\\d.]+)");
 
             QRegularExpressionMatch match = re.match(aiResponse.trimmed());
 
@@ -570,7 +572,7 @@ void MainWindow::saveFullSession()
 {
     QJsonObject root;
 
-    // 1. Сохраняем данные профиля (из твоих переменных)
+    // сейв профіль
     QJsonObject profile;
     profile["name"] = userName;
     profile["age"] = userAge;
@@ -579,15 +581,25 @@ void MainWindow::saveFullSession()
     profile["meta"] = meta;
     root["profile"] = profile;
 
-    // 2. Сохраняем текущий прогресс (твои переменные cT...)
+    // бары
     QJsonObject progress;
-    progress["calories"] = cTcalories;
-    progress["proteins"] = cTproteins;
-    progress["fats"] = cTfats;
-    progress["carbs"] = cTcarbs;
+    progress["cTcalories"] = cTcalories;
+    progress["cTproteins"] = cTproteins;
+    progress["cTfats"] = cTfats;
+    progress["cTcarbs"] = cTcarbs;
+    progress["cTcalories"] = cTcalories;
+    progress["cTproteins"] = cTproteins;
+    progress["cTfats"] = cTfats;
+    progress["cTcarbs"] = cTcarbs;
+    progress["cTfenil"] = cTfenil; // <-- НОВОЕ
     root["progress"] = progress;
 
-    // 3. Сохраняем цели (scores), чтобы бары правильно считались при загрузке
+    root["lastPageIndex"] = ui->mainStackedWidget->currentIndex();
+    root["lastCkalPage"] = ui->ckalStackedWidget->currentIndex();
+    root["lastBelokPage"] = ui->belokStackedWidget->currentIndex();
+    root["progress"] = progress;
+
+    // цели
     QJsonObject targets;
     targets["calScore"] = userCkalScore;
     targets["protScore"] = userProteinScore;
@@ -595,12 +607,23 @@ void MainWindow::saveFullSession()
     targets["carbsScore"] = userCarbsScore;
     root["targets"] = targets;
 
-    // 4. Сохраняем настройки интерфейса
-    QJsonObject uiSettings;
-    uiSettings["apiIndex"] = ui->apiBox->currentIndex();
-    uiSettings["modelIndex"] = ui->modelBox->currentIndex();
-    uiSettings["lastInput"] = ui->input_field->text();
-    root["ui"] = uiSettings;
+    // бжв
+
+    QJsonObject bjv;
+    bjv["caloriesLbl"] = caloriesLbl;
+    bjv["proteinLbl"] = proteinLbl;
+    bjv["fatsLbl"] = fatsLbl;
+    bjv["carbsLbl"] = carbsLbl;
+    bjv["fenilLbl_2"] = ui->lb1_2->text();
+    bjv["caloriesLbl_2"] = ui->ckal_lbl_2->text();
+    bjv["proteinLbl_2"] = ui->protein_lbl_2->text();
+    root["bjv"] = bjv;
+
+
+
+    // страница
+
+    root["lastPageIndex"] = ui->mainStackedWidget->currentIndex();
 
     // Записываем всё это в файл
     QFile file("session.json");
@@ -615,6 +638,7 @@ void MainWindow::saveFullSession()
 
 void MainWindow::loadFullSession()
 {
+    ui->mainStackedWidget->setCurrentIndex(0);
     QFile file("session.json");
     if (!file.exists()) {
         qDebug() << "Session file not found, loading a clean program.";
@@ -628,57 +652,157 @@ void MainWindow::loadFullSession()
         QJsonDocument doc = QJsonDocument::fromJson(data);
         QJsonObject root = doc.object();
 
-        // 1. Восстанавливаем профиль
+        // лоад профіль
         QJsonObject profile = root["profile"].toObject();
         userName = profile["name"].toString();
         userAge = profile["age"].toInt();
+
         userHeight = profile["height"].toInt();
         userWeight = profile["weight"].toInt();
         meta = profile["meta"].toString();
 
-        // Заполняем поля в интерфейсе
-        ui->name_field->setText(userName);
-        ui->age_field->setText(userAge > 0 ? QString::number(userAge) : "");
-        ui->zrist_field->setText(userHeight > 0 ? QString::number(userHeight) : "");
-        ui->vaga_field->setText(userWeight > 0 ? QString::number(userWeight) : "");
+        if (meta == "схуднути") {
+            ui->shud_btn->setChecked(true);
+            ui->pidtr_btn->setChecked(false);
+            ui->nabir_btn->setChecked(false);
 
-        // 2. Восстанавливаем цели (Score)
+        } else if (meta == "підтримка ваги") {
+            ui->pidtr_btn->setChecked(true);
+            ui->shud_btn->setChecked(false);
+            ui->nabir_btn->setChecked(false);
+
+        } else if (meta == "набір ваги") {
+            ui->nabir_btn->setChecked(true);
+            ui->shud_btn->setChecked(false);
+            ui->pidtr_btn->setChecked(false);
+        }
+
+
+        ui->name_field->setText(userName);
+        ui->age_field->setText(QString::number(userAge));
+        if (userAge == 0) {
+            ui->age_field->clear();
+        }
+        ui->zrist_field->setText(QString::number(userHeight));
+        if (userHeight == 0) {
+            ui->zrist_field->clear();
+        }
+        ui->vaga_field->setText(QString::number(userWeight));
+        if (userWeight == 0) {
+            ui->vagaida_field->clear();
+        }
+
+        // лоад скор
         QJsonObject targets = root["targets"].toObject();
         userCkalScore = targets["calScore"].toInt();
         userProteinScore = targets["protScore"].toInt();
         userFatsScore = targets["fatsScore"].toInt();
         userCarbsScore = targets["carbsScore"].toInt();
 
-        // 3. Восстанавливаем текущий прогресс
+        // бары
         QJsonObject progress = root["progress"].toObject();
-        cTcalories = progress["calories"].toDouble();
-        cTproteins = progress["proteins"].toDouble();
-        cTfats = progress["fats"].toDouble();
-        cTcarbs = progress["carbs"].toDouble();
+        cTcalories = progress["cTcalories"].toDouble();
+        cTproteins = progress["cTproteins"].toDouble();
+        cTfats = progress["cTfats"].toDouble();
+        cTcarbs = progress["cTcarbs"].toDouble();
 
-        // 4. Обновляем визуальные бары (Progress Bars)
-        if (userCkalScore > 0) ui->ckal_bar->setValue(qBound(0, qRound((cTcalories / userCkalScore) * 100.0), 100));
-        if (userProteinScore > 0) ui->protein_bar->setValue(qBound(0, qRound((cTproteins / userProteinScore) * 100.0), 100));
-        if (userFatsScore > 0) ui->fats_bar->setValue(qBound(0, qRound((cTfats / userFatsScore) * 100.0), 100));
-        if (userCarbsScore > 0) ui->carbs_bar->setValue(qBound(0, qRound((cTcarbs / userCarbsScore) * 100.0), 100));
+        totalCkalPercentage = (userCkalScore > 0) ? qBound(0, qRound((cTcalories / userCkalScore) * 100.0), 100) : 0;
+        totalProteinPercentage = (userProteinScore > 0) ? qBound(0, qRound((cTproteins / userProteinScore) * 100.0), 100) : 0;
+        totalFatsPercentage = (userFatsScore > 0) ? qBound(0, qRound((cTfats / userFatsScore) * 100.0), 100) : 0;
+        totalCarbsPercentage = (userCarbsScore > 0) ? qBound(0, qRound((cTcarbs / userCarbsScore) * 100.0), 100) : 0;
 
-        // 5. Настройки UI (API и Модель)
-        QJsonObject uiSettings = root["ui"].toObject();
+        ui->ckal_bar->setValue(totalCkalPercentage);
+        ui->protein_bar->setValue(totalProteinPercentage);
+        ui->fats_bar->setValue(totalFatsPercentage);
+        ui->carbs_bar->setValue(totalCarbsPercentage);
 
-        // Блокируем сигналы, чтобы не дергать сервер при загрузке
-        ui->apiBox->blockSignals(true);
-        ui->modelBox->blockSignals(true);
+        ui->ckalStackedWidget->setCurrentIndex(1);
 
-        ui->apiBox->setCurrentIndex(uiSettings["apiIndex"].toInt());
-        ui->modelBox->setCurrentIndex(uiSettings["modelIndex"].toInt());
+        // бжв
 
-        ui->apiBox->blockSignals(false);
-        ui->modelBox->blockSignals(false);
+        QJsonObject bjv = root["bjv"].toObject();
+        caloriesLbl = bjv["caloriesLbl"].toString();
+        proteinLbl = bjv["proteinLbl"].toString();
+        fatsLbl = bjv["fatsLbl"].toString();
+        carbsLbl = bjv["carbsLbl"].toString();
 
-        // Принудительно обновляем apiKey и apiUrl под загруженные индексы
-        on_apiBox_currentIndexChanged(ui->apiBox->currentIndex());
-        on_modelBox_currentIndexChanged(ui->modelBox->currentIndex());
+        ui->ckal_lbl->setText(caloriesLbl);
+        ui->ckal_lbl->adjustSize();
+
+        ui->protein_lbl->setText(proteinLbl);
+        ui->protein_lbl->adjustSize();
+
+        ui->fats_lbl->setText(fatsLbl);
+        ui->fats_lbl->adjustSize();
+
+        ui->carbs_lbl->setText(carbsLbl);
+        ui->carbs_lbl->adjustSize();
+
+        cTfenil = progress["cTfenil"].toDouble();
+
+        // Загружаем текст для второй страницы (белок/фенилаланин)
+        ui->lb1_2->setText(bjv["fenilLbl_2"].toString());
+        ui->ckal_lbl_2->setText(bjv["caloriesLbl_2"].toString());
+        ui->protein_lbl_2->setText(bjv["proteinLbl_2"].toString());
+
+        ui->lb1_2->adjustSize();
+        ui->ckal_lbl_2->adjustSize();
+        ui->protein_lbl_2->adjustSize();
+
+        // Восстановление страниц
+        ui->mainStackedWidget->setCurrentIndex(root["lastPageIndex"].toInt());
+        ui->ckalStackedWidget->setCurrentIndex(root["lastCkalPage"].toInt());
+        ui->belokStackedWidget->setCurrentIndex(root["lastBelokPage"].toInt());
+
+        //страница
+
+        if (root.contains("lastPageIndex")) {
+            int savedPage = root["lastPageIndex"].toInt();
+            ui->mainStackedWidget->setCurrentIndex(savedPage);
+            qDebug() << "Переключено на страницу:" << savedPage;
+        }
+
+
+        // // Блокируем сигналы, чтобы не дергать сервер при загрузке
+        // ui->apiBox->blockSignals(true);
+        // ui->modelBox->blockSignals(true);
+
+        // ui->apiBox->setCurrentIndex(uiSettings["apiIndex"].toInt());
+        // ui->modelBox->setCurrentIndex(uiSettings["modelIndex"].toInt());
+
+        // ui->apiBox->blockSignals(false);
+        // ui->modelBox->blockSignals(false);
+
+        // // Принудительно обновляем apiKey и apiUrl под загруженные индексы
+        // on_apiBox_currentIndexChanged(ui->apiBox->currentIndex());
+        // on_modelBox_currentIndexChanged(ui->modelBox->currentIndex());
 
         qDebug() << "Session loaded successfully!";
     }
+}
+void MainWindow::on_saveDel_clicked()
+{
+
+    userName = "";
+    userAge = 0;
+    userHeight = 0;
+    userWeight = 0;
+    meta = "";
+    cTcalories = 0;
+    cTproteins = 0;
+    cTfats = 0;
+    cTcarbs = 0;
+    cTfenil = 0;
+
+    totalCkalPercentage = 0;
+    totalProteinPercentage = 0;
+    totalFatsPercentage = 0;
+    totalCarbsPercentage = 0;
+
+    QFile::remove("session.json");
+
+    QString program = QCoreApplication::applicationFilePath();
+    QProcess::startDetached(program, QCoreApplication::arguments());
+    QCoreApplication::exit(0);
+
 }

@@ -51,5 +51,6 @@
         <file>assets/icons/ckal.png</file>
         <file>assets/icons/profile.png</file>
         <file>assets/icons/settings.png</file>
+        <file>assets/api/apikey.txt</file>
     </qresource>
 </RCC>

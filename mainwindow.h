@@ -49,6 +49,8 @@ private slots:
 
 
 
+    void on_saveDel_clicked();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -69,13 +71,16 @@ private:
     bool nabir;
     double userCkalScore = 0;
     double userProteinScore = 0, userFatsScore = 0, userCarbsScore = 0;
+    double cTfenil = 0.0;
 
     double ckalPercentage = 0, proteinPercentage = 0, fatsPercentage = 0, carbsPercentage = 0;
-    double totalCkalPercentage = 0, totalProteinPercentage = 0, totalFatsPercentage = 0, totalCarbsPercentage = 0;
+    int totalCkalPercentage = 0, totalProteinPercentage = 0, totalFatsPercentage = 0, totalCarbsPercentage = 0;
     double cTcalories = 0, cTproteins = 0, cTfats = 0, cTcarbs = 0;
 
     void saveFullSession();
     void loadFullSession();
+
+    QString stravaLbl, proteinLbl, fatsLbl, carbsLbl, caloriesLbl;
 };
 
 
