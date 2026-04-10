@@ -262,6 +262,20 @@ void MainWindow::on_save_clicked()
     userAge = ui->age_field->text().toInt();
     userHeight = ui->zrist_field->text().toInt();
     userWeight = ui->vaga_field->text().toInt();
+
+    int dietIndex = ui->fenilBox->currentIndex();
+    int tolerance = 25;
+
+    if (dietIndex == 0) tolerance = 15;      // Строгая
+    else if (dietIndex == 1) tolerance = 25; // Умеренная
+    else if (dietIndex == 2) tolerance = 40; // Мягкая
+
+    QSettings settings("MyCompany", "CalorieApp");
+    settings.setValue("selected_diet_index", dietIndex);
+
+    userFenilScore = userWeight * tolerance;
+
+    userProteinPKYScore = (double)userFenilScore / 50.0;
     qDebug() << "Saved:" << userName << userHeight << userWeight << "meta:" << meta;
 
     QString food = ui->input_field->text();
@@ -322,8 +336,9 @@ void MainWindow::on_save_clicked()
 
             ui->notification_bar->hide();
             ui->loading_gif_label->movie()->stop();
-
             ui->mainStackedWidget->setCurrentIndex(1);
+
+
 
         } else {
             ui->notification_bar->hide();
@@ -387,17 +402,25 @@ void MainWindow::on_nabir_btn_clicked(bool checked)
 
 void MainWindow::on_info_btn_clicked()
 {
-    QString infoBoxText = QString("Ваша ціль по БЖВ на день:\n"
-                               "Калорії: %1\n"
-                               "Білок: %2\n"
-                               "Жири: %3\n"
-                               "Вуглеводи: %4").arg(userCkalScore).arg(userProteinScore).arg(userFatsScore).arg(userCarbsScore);
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Інформація про БЖВ");
+    msgBox.setIcon(QMessageBox::NoIcon);
 
+    QString infoText = QString(
+                           "<b>ℹ️ Ваша ціль по БЖВ на день:</b><br><br>"
+                           "🔥 Калорії: <b>%1 ккал</b><br>"
+                           "💪 Білок: <b>%2 г</b><br>"
+                           "🥑 Жири: <b>%3 г</b><br>"
+                           "🍞 Вуглеводи: <b>%4 г</b>"
+                           ).arg(userCkalScore).arg(userProteinScore).arg(userFatsScore).arg(userCarbsScore);
 
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Інформація");
-    msgBox.setText(infoBoxText);
-    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setText(infoText);
+
+    msgBox.setStyleSheet(
+        "QLabel { min-width: 300px; color: #121212; font-size: 14px; }"
+        "QPushButton { width: 80px; padding: 5px; }"
+        );
+
     msgBox.exec();
 }
 
@@ -545,6 +568,18 @@ void MainWindow::on_add_button_2_clicked()
             ui->carbs_lbl_2->setText(carbsLbl);
             ui->carbs_lbl_2->adjustSize();
 
+            cTfenil += fenil;
+            cTPKYproteins += proteins;
+
+            double currentFenilNorm = userFenilScore;
+
+            int totalFenilPercentage = qBound(0, qRound((cTfenil / currentFenilNorm) * 100.0), 100);
+            ui->fenil_bar->setValue(totalFenilPercentage);
+
+            totalPKYProteinPercentage = qBound(0, qRound((cTPKYproteins / userProteinPKYScore) * 100.0), 100);
+            ui->protein_bar_2->setValue(totalPKYProteinPercentage);
+
+
             ui->belokStackedWidget->setCurrentIndex(1);
 
             //кінець gif анімації
@@ -572,7 +607,7 @@ void MainWindow::saveFullSession()
 {
     QJsonObject root;
 
-    // сейв профіль
+    // 1. Профіль користувача
     QJsonObject profile;
     profile["name"] = userName;
     profile["age"] = userAge;
@@ -581,34 +616,27 @@ void MainWindow::saveFullSession()
     profile["meta"] = meta;
     root["profile"] = profile;
 
-    // бары
+    // 2. Прогрес за день (Накопичені дані)
     QJsonObject progress;
     progress["cTcalories"] = cTcalories;
-    progress["cTproteins"] = cTproteins;
+    progress["cTproteins"] = cTproteins;       // Загальний білок
+    progress["cTPKYproteins"] = cTPKYproteins;   // БІЛОК ФКУ (важливо!)
+    progress["cTfenil"] = cTfenil;               // ФЕНІЛАЛАНІН
     progress["cTfats"] = cTfats;
     progress["cTcarbs"] = cTcarbs;
-    progress["cTcalories"] = cTcalories;
-    progress["cTproteins"] = cTproteins;
-    progress["cTfats"] = cTfats;
-    progress["cTcarbs"] = cTcarbs;
-    progress["cTfenil"] = cTfenil; // <-- НОВОЕ
     root["progress"] = progress;
 
-    root["lastPageIndex"] = ui->mainStackedWidget->currentIndex();
-    root["lastCkalPage"] = ui->ckalStackedWidget->currentIndex();
-    root["lastBelokPage"] = ui->belokStackedWidget->currentIndex();
-    root["progress"] = progress;
-
-    // цели
+    // 3. Цілі та ліміти (Норми)
     QJsonObject targets;
     targets["calScore"] = userCkalScore;
     targets["protScore"] = userProteinScore;
+    targets["proteinPKYScore"] = userProteinPKYScore; // ЛІМІТ БІЛКА ФКУ
+    targets["fenilScore"] = userFenilScore;           // ЛІМІТ ФЕНІЛУ
     targets["fatsScore"] = userFatsScore;
     targets["carbsScore"] = userCarbsScore;
     root["targets"] = targets;
 
-    // бжв
-
+    // 4. Текстові дані інтерфейсу
     QJsonObject bjv;
     bjv["caloriesLbl"] = caloriesLbl;
     bjv["proteinLbl"] = proteinLbl;
@@ -619,31 +647,30 @@ void MainWindow::saveFullSession()
     bjv["proteinLbl_2"] = ui->protein_lbl_2->text();
     root["bjv"] = bjv;
 
-
-
-    // страница
-
+    // 5. Стан вікон
     root["lastPageIndex"] = ui->mainStackedWidget->currentIndex();
+    root["lastCkalPage"] = ui->ckalStackedWidget->currentIndex();
+    root["lastBelokPage"] = ui->belokStackedWidget->currentIndex();
 
-    // Записываем всё это в файл
+    // Запис у файл
     QFile file("session.json");
     if (file.open(QIODevice::WriteOnly)) {
         QJsonDocument doc(root);
-        file.write(doc.toJson()); // Превращаем объект в текстовый JSON
+        file.write(doc.toJson());
         file.close();
+        qDebug() << "--- СЕСІЯ ПОВНІСТЮ ЗБЕРЕЖЕНА ---";
     } else {
-        qDebug() << "Failed to open file to save session!";
+        qDebug() << "Помилка запису файлу!";
     }
 }
 
 void MainWindow::loadFullSession()
 {
     ui->mainStackedWidget->setCurrentIndex(0);
+    ui->ckalStackedWidget->setCurrentIndex(0);
+    ui->belokStackedWidget->setCurrentIndex(0);
     QFile file("session.json");
-    if (!file.exists()) {
-        qDebug() << "Session file not found, loading a clean program.";
-        return;
-    }
+    if (!file.exists()) return;
 
     if (file.open(QIODevice::ReadOnly)) {
         QByteArray data = file.readAll();
@@ -652,137 +679,69 @@ void MainWindow::loadFullSession()
         QJsonDocument doc = QJsonDocument::fromJson(data);
         QJsonObject root = doc.object();
 
-        // лоад профіль
+        // Лоад профілю
         QJsonObject profile = root["profile"].toObject();
         userName = profile["name"].toString();
         userAge = profile["age"].toInt();
-
         userHeight = profile["height"].toInt();
         userWeight = profile["weight"].toInt();
         meta = profile["meta"].toString();
 
-        if (meta == "схуднути") {
-            ui->shud_btn->setChecked(true);
-            ui->pidtr_btn->setChecked(false);
-            ui->nabir_btn->setChecked(false);
-
-        } else if (meta == "підтримка ваги") {
-            ui->pidtr_btn->setChecked(true);
-            ui->shud_btn->setChecked(false);
-            ui->nabir_btn->setChecked(false);
-
-        } else if (meta == "набір ваги") {
-            ui->nabir_btn->setChecked(true);
-            ui->shud_btn->setChecked(false);
-            ui->pidtr_btn->setChecked(false);
-        }
-
-
+        // Оновлення кнопок мета (схуднення і т.д.)
+        ui->shud_btn->setChecked(meta == "схуднути");
+        ui->pidtr_btn->setChecked(meta == "підтримка ваги");
+        ui->nabir_btn->setChecked(meta == "набір ваги");
         ui->name_field->setText(userName);
-        ui->age_field->setText(QString::number(userAge));
-        if (userAge == 0) {
-            ui->age_field->clear();
-        }
-        ui->zrist_field->setText(QString::number(userHeight));
-        if (userHeight == 0) {
-            ui->zrist_field->clear();
-        }
-        ui->vaga_field->setText(QString::number(userWeight));
-        if (userWeight == 0) {
-            ui->vagaida_field->clear();
-        }
+        ui->age_field->setText(userAge > 0 ? QString::number(userAge) : "");
+        ui->zrist_field->setText(userHeight > 0 ? QString::number(userHeight) : "");
+        ui->vaga_field->setText(userWeight > 0 ? QString::number(userWeight) : "");
 
-        // лоад скор
+        // Лоад цілей (Targets)
         QJsonObject targets = root["targets"].toObject();
-        userCkalScore = targets["calScore"].toInt();
-        userProteinScore = targets["protScore"].toInt();
-        userFatsScore = targets["fatsScore"].toInt();
-        userCarbsScore = targets["carbsScore"].toInt();
+        userCkalScore = targets["calScore"].toDouble();
+        userProteinScore = targets["protScore"].toDouble();
+        userProteinPKYScore = targets["proteinPKYScore"].toDouble();
+        userFenilScore = targets["fenilScore"].toDouble();
+        userFatsScore = targets["fatsScore"].toDouble();
+        userCarbsScore = targets["carbsScore"].toDouble();
 
-        // бары
+        // Лоад прогресу (Progress)
         QJsonObject progress = root["progress"].toObject();
         cTcalories = progress["cTcalories"].toDouble();
         cTproteins = progress["cTproteins"].toDouble();
+        cTPKYproteins = progress["cTPKYproteins"].toDouble();
+        cTfenil = progress["cTfenil"].toDouble();
         cTfats = progress["cTfats"].toDouble();
         cTcarbs = progress["cTcarbs"].toDouble();
 
-        totalCkalPercentage = (userCkalScore > 0) ? qBound(0, qRound((cTcalories / userCkalScore) * 100.0), 100) : 0;
-        totalProteinPercentage = (userProteinScore > 0) ? qBound(0, qRound((cTproteins / userProteinScore) * 100.0), 100) : 0;
-        totalFatsPercentage = (userFatsScore > 0) ? qBound(0, qRound((cTfats / userFatsScore) * 100.0), 100) : 0;
-        totalCarbsPercentage = (userCarbsScore > 0) ? qBound(0, qRound((cTcarbs / userCarbsScore) * 100.0), 100) : 0;
+        // ОНОВЛЕННЯ БАРІВ (Важливо для macOS)
+        if (userCkalScore > 0) ui->ckal_bar->setValue(qBound(0, qRound((cTcalories / userCkalScore) * 100.0), 100));
+        if (userProteinScore > 0) ui->protein_bar->setValue(qBound(0, qRound((cTproteins / userProteinScore) * 100.0), 100));
+        if (userFenilScore > 0) ui->fenil_bar->setValue(qBound(0, qRound((cTfenil / userFenilScore) * 100.0), 100));
+        if (userProteinPKYScore > 0) ui->protein_bar_2->setValue(qBound(0, qRound((cTPKYproteins / userProteinPKYScore) * 100.0), 100));
+        if (userFatsScore > 0) ui->fats_bar->setValue(qBound(0, qRound((cTfats / userFatsScore) * 100.0), 100));
+        if (userCarbsScore > 0) ui->carbs_bar->setValue(qBound(0, qRound((cTcarbs / userCarbsScore) * 100.0), 100));
 
-        ui->ckal_bar->setValue(totalCkalPercentage);
-        ui->protein_bar->setValue(totalProteinPercentage);
-        ui->fats_bar->setValue(totalFatsPercentage);
-        ui->carbs_bar->setValue(totalCarbsPercentage);
-
-        ui->ckalStackedWidget->setCurrentIndex(1);
-
-        // бжв
-
+        // Лоад тексту лейблів
         QJsonObject bjv = root["bjv"].toObject();
-        caloriesLbl = bjv["caloriesLbl"].toString();
-        proteinLbl = bjv["proteinLbl"].toString();
-        fatsLbl = bjv["fatsLbl"].toString();
-        carbsLbl = bjv["carbsLbl"].toString();
-
-        ui->ckal_lbl->setText(caloriesLbl);
-        ui->ckal_lbl->adjustSize();
-
-        ui->protein_lbl->setText(proteinLbl);
-        ui->protein_lbl->adjustSize();
-
-        ui->fats_lbl->setText(fatsLbl);
-        ui->fats_lbl->adjustSize();
-
-        ui->carbs_lbl->setText(carbsLbl);
-        ui->carbs_lbl->adjustSize();
-
-        cTfenil = progress["cTfenil"].toDouble();
-
-        // Загружаем текст для второй страницы (белок/фенилаланин)
+        ui->ckal_lbl->setText(bjv["caloriesLbl"].toString());
+        ui->protein_lbl->setText(bjv["proteinLbl"].toString());
+        ui->fats_lbl->setText(bjv["fatsLbl"].toString());
+        ui->carbs_lbl->setText(bjv["carbsLbl"].toString());
         ui->lb1_2->setText(bjv["fenilLbl_2"].toString());
         ui->ckal_lbl_2->setText(bjv["caloriesLbl_2"].toString());
         ui->protein_lbl_2->setText(bjv["proteinLbl_2"].toString());
 
-        ui->lb1_2->adjustSize();
-        ui->ckal_lbl_2->adjustSize();
-        ui->protein_lbl_2->adjustSize();
-
-        // Восстановление страниц
+        // Повернення на останню сторінку
         ui->mainStackedWidget->setCurrentIndex(root["lastPageIndex"].toInt());
         ui->ckalStackedWidget->setCurrentIndex(root["lastCkalPage"].toInt());
         ui->belokStackedWidget->setCurrentIndex(root["lastBelokPage"].toInt());
 
-        //страница
-
-        if (root.contains("lastPageIndex")) {
-            int savedPage = root["lastPageIndex"].toInt();
-            ui->mainStackedWidget->setCurrentIndex(savedPage);
-            qDebug() << "Переключено на страницу:" << savedPage;
-        }
-
-
-        // // Блокируем сигналы, чтобы не дергать сервер при загрузке
-        // ui->apiBox->blockSignals(true);
-        // ui->modelBox->blockSignals(true);
-
-        // ui->apiBox->setCurrentIndex(uiSettings["apiIndex"].toInt());
-        // ui->modelBox->setCurrentIndex(uiSettings["modelIndex"].toInt());
-
-        // ui->apiBox->blockSignals(false);
-        // ui->modelBox->blockSignals(false);
-
-        // // Принудительно обновляем apiKey и apiUrl под загруженные индексы
-        // on_apiBox_currentIndexChanged(ui->apiBox->currentIndex());
-        // on_modelBox_currentIndexChanged(ui->modelBox->currentIndex());
-
-        qDebug() << "Session loaded successfully!";
+        qDebug() << "--- СЕСІЯ УСПІШНО ЗАВАНТАЖЕНА ---";
     }
 }
 void MainWindow::on_saveDel_clicked()
 {
-
     userName = "";
     userAge = 0;
     userHeight = 0;
@@ -804,5 +763,41 @@ void MainWindow::on_saveDel_clicked()
     QString program = QCoreApplication::applicationFilePath();
     QProcess::startDetached(program, QCoreApplication::arguments());
     QCoreApplication::exit(0);
-
 }
+
+
+
+
+void MainWindow::on_info_btn_2_clicked()
+{
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Денна норма ФКУ");
+
+    // 1. Прибираємо стандартну іконку (це дасть тексту розтягнутися на всю ширину)
+    msgBox.setIcon(QMessageBox::NoIcon);
+
+    // 2. Формуємо текст. Знак ℹ️ тепер всередині тексту, тому він буде впритул.
+    QString infoText = QString(
+                           "<b>ℹ️ Ваші ФКУ-ліміти на день:</b><br><br>"
+                           "🧬 Фенілаланін: <b>%1 мг</b><br>"
+                           "🥩 Натуральний білок: <b>%2 г</b><br>"
+                           "⚖️ Ваша вага: <b>%3 кг</b><br><br>"
+                           "<small>Розраховано на основі обраної дієти.</small>"
+                           ).arg(userFenilScore).arg(userProteinPKYScore, 0, 'f', 1).arg(userWeight);
+
+    msgBox.setText(infoText);
+
+    // 3. QSS для macOS: розтягуємо лейбл і прибираємо переноси
+    msgBox.setStyleSheet(
+        "QLabel { "
+        "min-width: 350px; " // Ширина, щоб текст не переносився
+        "color: #121212; "
+        "font-size: 14px; "
+        "qproperty-alignment: 'AlignLeft | AlignTop'; "
+        "}"
+        "QPushButton { width: 80px; padding: 5px; }"
+        );
+
+    msgBox.exec();
+}
+

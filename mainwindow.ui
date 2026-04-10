@@ -436,7 +436,7 @@ background-color: white; /* укажи свой цвет фона */
 }</string>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page">
         <property name="autoFillBackground">
@@ -1421,6 +1421,9 @@ background-color: transparent;
               </property>
               <item>
                <widget class="QStackedWidget" name="ckalStackedWidget">
+                <property name="currentIndex">
+                 <number>1</number>
+                </property>
                 <widget class="QWidget" name="infopage">
                  <layout class="QHBoxLayout" name="horizontalLayout_8">
                   <property name="leftMargin">
@@ -2310,6 +2313,9 @@ QPushButton:pressed {
                   <height>194</height>
                  </size>
                 </property>
+                <property name="currentIndex">
+                 <number>1</number>
+                </property>
                 <widget class="QWidget" name="infopage_2">
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <property name="spacing">
@@ -2383,7 +2389,7 @@ QPushButton:pressed {
                 <widget class="QWidget" name="whenstravaadded_2">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <property name="spacing">
-                   <number>0</number>
+                   <number>31</number>
                   </property>
                   <property name="leftMargin">
                    <number>0</number>
@@ -2409,6 +2415,232 @@ QPushButton:pressed {
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="bars_2">
+                    <property name="frameShape">
+                     <enum>QFrame::Shape::StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Shadow::Raised</enum>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_20">
+                     <property name="spacing">
+                      <number>3</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_5">
+                       <item>
+                        <widget class="QLabel" name="info_label_2">
+                         <property name="styleSheet">
+                          <string notr="true">background-color: transparent;
+border: none</string>
+                         </property>
+                         <property name="text">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Ваша норма за день: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="info_btn_2">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>21</width>
+                           <height>21</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>21</width>
+                           <height>21</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">/* Базовый вид кнопки */
+QPushButton {
+    border-image: url(:/assets/ckal page/info_btn.svg) 10 10 10 10;
+color: #4A4A4A;
+    font-size: 14px;
+    min-width: 21px;
+    min-height: 21px;
+}
+
+/* При наведении мышкой */
+QPushButton:hover {
+    border-image: url(:/assets/ckal page/info_btn_hover.svg) 10 10 10 10;
+}
+
+/* В момент самого нажатия (физический клик) */
+QPushButton:pressed {
+    border-image: url(:/assets/ckal page/info_btn_pressed.svg) 10 10 10 10;
+    padding-top: 4px;
+/* Эффект проседания текста */
+}
+</string>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>40</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="autoExclusive">
+                          <bool>true</bool>
+                         </property>
+                         <property name="flat">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_23">
+                         <property name="orientation">
+                          <enum>Qt::Orientation::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="fenil_bar_lay">
+                       <property name="spacing">
+                        <number>6</number>
+                       </property>
+                       <item>
+                        <widget class="QProgressBar" name="fenil_bar">
+                         <property name="styleSheet">
+                          <string notr="true">
+QProgressBar {
+    border: 1px solid transparent;        
+    background-color: #CAC4D0; 
+    border-radius: 4px;     
+    height: 12px;          
+	text-align: center; 
+}
+
+
+QProgressBar::chunk {
+    background-color: #6750A4;
+    border-radius: 4px;         
+
+}</string>
+                         </property>
+                         <property name="value">
+                          <number>0</number>
+                         </property>
+                         <property name="textVisible">
+                          <bool>false</bool>
+                         </property>
+                         <property name="invertedAppearance">
+                          <bool>false</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="fenil_bar_label">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">#fenil_bar_label {
+	background-color: rgba(0, 0, 0, 0) !important; /* Полная прозрачность */
+    background: none !important;                  /* Отключаем любые заливки */
+    border: none !important;                      /* Убираем рамки */
+}</string>
+                         </property>
+                         <property name="text">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Фенілаланін&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="protein_bar_lay_2">
+                       <property name="spacing">
+                        <number>16</number>
+                       </property>
+                       <item>
+                        <widget class="QProgressBar" name="protein_bar_2">
+                         <property name="styleSheet">
+                          <string notr="true">
+QProgressBar {
+    border: 1px solid transparent;        
+    background-color: #CAC4D0; 
+    border-radius: 4px;     
+    height: 12px;          
+	text-align: center; 
+}
+
+
+QProgressBar::chunk {
+    background-color: #6750A4;
+    border-radius: 4px;         
+
+}</string>
+                         </property>
+                         <property name="value">
+                          <number>0</number>
+                         </property>
+                         <property name="textVisible">
+                          <bool>false</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="protein_bar_label_2">
+                         <property name="styleSheet">
+                          <string notr="true">#protein_bar_label_2 {
+	background-color: rgba(0, 0, 0, 0) !important; /* Полная прозрачность */
+    background: none !important;                  /* Отключаем любые заливки */
+    border: none !important;                      /* Убираем рамки */
+}</string>
+                         </property>
+                         <property name="text">
+                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Білок&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </widget>
                   </item>
                   <item>
                    <widget class="QFrame" name="infobox_belok">
@@ -3046,6 +3278,108 @@ QComboBox QAbstractItemView {
               <item>
                <property name="text">
                 <string>gemini-3-flash-live</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_16">
+              <item>
+               <spacer name="horizontalSpacer_30">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="styleSheet">
+                 <string notr="true">	background-color: rgba(0, 0, 0, 0) !important; 
+    background: none !important;                  
+    border: none !important;                    
+	color: black; font-weight: bold;</string>
+                </property>
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; color:#000000;&quot;&gt;Налаштування ФКУ дієти&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_31">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QComboBox" name="fenilBox">
+              <property name="styleSheet">
+               <string notr="true">QComboBox {
+    background-color: white;
+    color: black;
+    border: 1px solid #6750A4;
+    border-radius: 10px;
+    padding: 5px;
+}
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 30px; 
+    border-left-width: 0px; 
+    border-top-right-radius: 10px; 
+    border-bottom-right-radius: 10px;
+}
+QComboBox::down-arrow {
+    image: url(:/assets/settingspage/combolisttriangle.svg); 
+    width: 12px;  
+    height: 12px;
+}
+QComboBox::drop-down:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+QComboBox::drop-down:on {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+QComboBox:hover::drop-down {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+QComboBox QAbstractItemView {
+    background-color: white;
+    color: black;          
+    selection-background-color: #6750A4; 
+    selection-color: white;            
+    border: 1px solid #6750A4;
+    outline: 0px;
+}</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>Строга (15 мг/кг)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Помірна (25 мг/кг)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>М’яка (40 мг/кг)</string>
                </property>
               </item>
              </widget>

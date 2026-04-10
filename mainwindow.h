@@ -51,6 +51,8 @@ private slots:
 
     void on_saveDel_clicked();
 
+    void on_info_btn_2_clicked();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -70,12 +72,12 @@ private:
     bool pidtr;
     bool nabir;
     double userCkalScore = 0;
-    double userProteinScore = 0, userFatsScore = 0, userCarbsScore = 0;
+    double userProteinScore = 0, userProteinPKYScore = 0, userFatsScore = 0, userCarbsScore = 0, userFenilScore = 0;
     double cTfenil = 0.0;
 
-    double ckalPercentage = 0, proteinPercentage = 0, fatsPercentage = 0, carbsPercentage = 0;
-    int totalCkalPercentage = 0, totalProteinPercentage = 0, totalFatsPercentage = 0, totalCarbsPercentage = 0;
-    double cTcalories = 0, cTproteins = 0, cTfats = 0, cTcarbs = 0;
+    double ckalPercentage = 0, proteinPercentage = 0, proteinPKYPercentage = 0, fatsPercentage = 0, carbsPercentage = 0;
+    int totalCkalPercentage = 0, totalProteinPercentage = 0, totalPKYProteinPercentage = 0, totalFatsPercentage = 0, totalCarbsPercentage = 0;
+    double cTcalories = 0, cTproteins = 0, cTPKYproteins = 0, cTfats = 0, cTcarbs = 0;
 
     void saveFullSession();
     void loadFullSession();
