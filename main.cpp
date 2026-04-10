@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -7,7 +6,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
-
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
@@ -17,7 +15,6 @@ int main(int argc, char *argv[])
 
 
     qDebug("START");
-
 
     QApplication a(argc, argv);
 
